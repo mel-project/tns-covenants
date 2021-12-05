@@ -11,10 +11,11 @@ def current_level() : Nat =
 - - -
 let current_level = current_level() in
 if current_level == 0 then
-    # Leaf logic: we ensure that the remaining 192 bits (24 bytes) of the name hash are in the spender's data field, and that the first output of the spender is denominated in new-token
+    # Leaf logic: we ensure that the remaining 192 bits (24 bytes) of the name hash are in the spender's data field, and that the first output of the spender is denominated in new-token and has value 1
     let outputs = env_spender_tx().outputs in
-    outputs is [RawCoinID; 1] && 
-    let x = outputs[0][1] in x is %[0] && 
+    outputs is [RawCoinData; 1] && 
+    let x = outputs[0][2] in x is %[0] && 
+    outputs[0][1] == 1 &&
     let x = env_spender_tx().data in x is %[24]
 else
     # Internal logic: spender must have 256 children, all of which must replicate and decrease the level.
