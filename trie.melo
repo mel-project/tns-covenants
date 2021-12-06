@@ -13,15 +13,16 @@ let current_level = current_level() in
 if current_level == 0 then
     # Leaf logic: we ensure that the remaining 192 bits (24 bytes) of the name hash are in the spender's data field, and that the first output of the spender is denominated in new-token and has value 1
     let outputs = env_spender_tx().outputs in
-    outputs is [RawCoinData; 1] && 
-    let x = outputs[0][2] in x is %[0] && 
-    outputs[0][1] == 1 &&
-    let x = env_spender_tx().data in x is %[24]
+        outputs is [RawCoinData; 1] && 
+        let x = outputs[0][2] in x is %[0] && 
+        outputs[0][1] == 1 &&
+        let x = env_spender_tx().data in x is %[24]
 else
     # Internal logic: spender must have 256 children, all of which must replicate and decrease the level.
     let outputs = env_spender_tx().outputs in
     vlen(outputs) == 256 &&
-    for output in unsafe transmute outputs into [RawCoinID; 256] fold accum = 1 as {0..1} with
+    for output in unsafe outputs :! [RawCoinID; 256] 
+    fold accum = 1 :: {0..1} with
         accum && b2n(output[0]) == b2n(env_self_hash()) &&
             let next_data = output[1] in
             next_data is %[1] && next_data[0] == current_level - 1
