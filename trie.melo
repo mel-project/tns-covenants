@@ -21,8 +21,8 @@ else
     # Internal logic: spender must have 256 children, all of which must replicate and decrease the level.
     let outputs = env_spender_tx().outputs in
     vlen(outputs) == 256 &&
-    for output in unsafe outputs :! [RawCoinID; 256] 
-    fold accum = 1 :: {0..1} with
+    for output in unsafe outputs :! [RawCoinID; 256] # we do this instead of checking that the type is [RawCoinID; 256]
+    fold accum = 1 :: {0..1} with                    # to work around bad code generation for type checks
         accum && b2n(output[0]) == b2n(env_self_hash()) &&
             let next_data = output[1] in
             next_data is %[1] && next_data[0] == current_level - 1
